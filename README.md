@@ -3,6 +3,7 @@
 - 包含任务 `claim` 脚本
 - 包含破解 `geetest` 脚本
 - 包含获取银河 `passport widget url` 脚本 `pnpm task -a passport`
+- 包含银河护照NFT `claim` 脚本 `pnpm task -a claimp`
 - 后续计划加入更多galex功能脚本
   - 绑定twitter
   - 绑定邮箱
@@ -29,9 +30,11 @@ npm install # 安装依赖
 
 ## 配置变量
 
-调整 `config.ts` 文件的两个配置:
+调整 `config.ts` 文件的三个配置:
 
 - campaignId: 例如 https://galxe.com/Linea/campaign/GCw91UQDkQ, campaignId就是 `GCw91UQDkQ`
+
+- passportPwd: 银河护照领取需要配置密码，这个要符合银河密码要求，否则会报错
 
 - w: geetest验证参数，运行前记得更新(一天一次即可)，获取方式见下图
 

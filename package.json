@@ -1,10 +1,12 @@
 {
-  "scripts": {
-    "task": "node -r @swc-node/register index.ts"
-  },
+	"scripts": {
+		"swc": "node -r @swc-node/register",
+		"task": "node -r @swc-node/register index.ts"
+	},
 	"dependencies": {
 		"axios": "^1.4.0",
-		"ethers": "^5"
+		"ethers": "^5",
+		"keccak": "^3.0.3"
 	},
 	"devDependencies": {
 		"@swc-node/register": "^1.6.5",

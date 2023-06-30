@@ -11,7 +11,11 @@ const signInQuery = (p: { address: string; message: string; signature: string })
 // Claim
 const prepareParticipateQuery = (p: { address: string; campaignID: string; chain: string; mintCount?: number; signature?: string; captcha: Captcha }) => ({ "operationName": "PrepareParticipate", "variables": { "input": { mintCount: 1, signature: '', ...p } }, "query": "mutation PrepareParticipate($input: PrepareParticipateInput!) {\n  prepareParticipate(input: $input) {\n    allow\n    disallowReason\n    signature\n    nonce\n    mintFuncInfo {\n      funcName\n      nftCoreAddress\n      verifyIDs\n      powahs\n      cap\n      __typename\n    }\n    extLinkResp {\n      success\n      data\n      error\n      __typename\n    }\n    metaTxResp {\n      metaSig2\n      autoTaskUrl\n      metaSpaceAddr\n      forwarderAddr\n      metaTxHash\n      reqQueueing\n      __typename\n    }\n    solanaTxResp {\n      mint\n      updateAuthority\n      explorerUrl\n      signedTx\n      verifyID\n      __typename\n    }\n    aptosTxResp {\n      signatureExpiredAt\n      tokenName\n      __typename\n    }\n    tokenRewardCampaignTxResp {\n      signatureExpiredAt\n      verifyID\n      __typename\n    }\n    loyaltyPointsTxResp {\n      TotalClaimedPoints\n      __typename\n    }\n    __typename\n  }\n}\n" })
 
-const getOrCreateInquiryByAddress = (p: { address: string; signature: string }) => ({"operationName":"GetOrCreateInquiryByAddress","variables":{"input":{"address":p.address.toLocaleLowerCase(),"signature":p.signature}},"query":"mutation GetOrCreateInquiryByAddress($input: GetOrCreateInquiryByAddressInput!) {\n  getOrCreateInquiryByAddress(input: $input) {\n    status\n    vendor\n    personaInquiry {\n      inquiryID\n      sessionToken\n      declinedReason\n      __typename\n    }\n    __typename\n  }\n}\n"})
+const getOrCreateInquiryByAddress = (p: { address: string; signature: string }) => ({ "operationName": "GetOrCreateInquiryByAddress", "variables": { "input": { "address": p.address.toLocaleLowerCase(), "signature": p.signature } }, "query": "mutation GetOrCreateInquiryByAddress($input: GetOrCreateInquiryByAddressInput!) {\n  getOrCreateInquiryByAddress(input: $input) {\n    status\n    vendor\n    personaInquiry {\n      inquiryID\n      sessionToken\n      declinedReason\n      __typename\n    }\n    __typename\n  }\n}\n" })
+
+const preparePassport = (p: { address: string; signature: string }) => ({ "operationName": "PreparePassport", "variables": { "input": p }, "query": "mutation PreparePassport($input: PreparePassportInput!) {\n  preparePassport(input: $input) {\n    data\n    __typename\n  }\n}\n" })
+const savePassport = (p: { address: string; signature: string; cipher: string }) => ({ "operationName": "SavePassport", "variables": { "input": p }, "query": "mutation SavePassport($input: SavePassportInput!) {\n  savePassport(input: $input) {\n    id\n    encrytionAlgorithm\n    cipher\n    __typename\n  }\n}\n" })
+const basicUserInfo = (p: { address: string; }) => ({ "operationName": "BasicUserInfo", "variables": { "address": p.address, "listSpaceInput": { "first": 30 } }, "query": "query BasicUserInfo($address: String!, $listSpaceInput: ListSpaceInput!) {\n  addressInfo(address: $address) {\n    id\n    username\n    address\n    hasEmail\n    avatar\n    solanaAddress\n    aptosAddress\n    seiAddress\n    hasEvmAddress\n    hasSolanaAddress\n    hasAptosAddress\n    hasTwitter\n    hasGithub\n    hasDiscord\n    hasTelegram\n    displayEmail\n    displayTwitter\n    displayGithub\n    displayDiscord\n    displayTelegram\n    email\n    twitterUserID\n    twitterUserName\n    githubUserID\n    githubUserName\n    passport {\n      status\n      pendingRedactAt\n      id\n      __typename\n    }\n    isVerifiedTwitterOauth2\n    isVerifiedDiscordOauth2\n    displayNamePref\n    discordUserID\n    discordUserName\n    telegramUserID\n    telegramUserName\n    subscriptions\n    isWhitelisted\n    isInvited\n    isAdmin\n    passportPendingRedactAt\n    spaces(input: $listSpaceInput) {\n      list {\n        ...SpaceBasicFrag\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment SpaceBasicFrag on Space {\n  id\n  name\n  info\n  thumbnail\n  alias\n  links\n  isVerified\n  status\n  followersCount\n  __typename\n}\n" })
 
 export class Galex {
   public req: ReturnType<typeof axios.create>;
@@ -79,7 +83,32 @@ export class Galex {
       await this.login()
     }
     const address = this.wallet.address;
-    const res = await this.req.post('/query', getOrCreateInquiryByAddress({ address, ...p}))
+    const res = await this.req.post('/query', getOrCreateInquiryByAddress({ address, ...p }))
+    return res.data.data
+  }
+
+  async preparePassport(p: { signature: string }) {
+    if (!this.token) {
+      await this.login()
+    }
+    const address = this.wallet.address;
+    const res = await this.req.post('/query', preparePassport({ address, ...p }))
+    return res.data.data
+  }
+  async savePassport(p: { cipher: string; signature: string; }) {
+    if (!this.token) {
+      await this.login()
+    }
+    const address = this.wallet.address;
+    const res = await this.req.post('/query', savePassport({ address, ...p }))
+    return res.data.data
+  }
+  async basicUserInfo() {
+    if (!this.token) {
+      await this.login()
+    }
+    const address = this.wallet.address;
+    const res = await this.req.post('/query', basicUserInfo({ address }))
     return res.data.data
   }
 }

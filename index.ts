@@ -10,6 +10,7 @@ import { cli } from "./utils/cli";
 import { Galex } from "./module";
 import cfg from "./config";
 import { loop } from "./utils/utils";
+import { claimPassport } from './claim';
 
 // 领取任务积分
 const claim = async (wallet: ethers.Wallet) => {
@@ -77,6 +78,16 @@ cli(async ({ action, pks, startIdx, endIdx }) => {
         console.log(`[${action}] ${wallet.address} 开始获取passport url`)
         await getPassportUrl(wallet);
         console.log(`[${action}] ${wallet.address} passport url获取完毕`)
+      }
+
+      if (action === 'claimp') {
+        if (!cfg.passportPwd || !cfg.w) {
+          console.error(
+            "❌ 请在config.ts中配置passportPwd和w参数",
+          );
+          process.exit(1);
+        }
+        await claimPassport(wallet, cfg.passportPwd);
       }
 
     } catch (error) {
