@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { Galex } from './module';
 const createKeccakHash = require('keccak');
 
-const bscProvider = new ethers.providers.JsonRpcProvider('https://bsc-dataseed.binance.org/');
+const bscProvider = new ethers.providers.JsonRpcProvider('https://rpc.ankr.com/bsc/a9603e82251e01bf7e40029505b09457e83ed9ceaa56043dbb9657f2b676ef05');
 
 function encryptPassportData(data: any, password: string) {
   var e = JSON.stringify(JSON.parse(data));
@@ -72,7 +72,7 @@ export const claimPassport = async (wallet: ethers.Wallet, password: string) => 
     signature,
     {
       value,
-      gasPrice: ethers.utils.parseUnits('1', 'wei'),
+      gasPrice: ethers.utils.parseUnits('1', 'gwei'),
     }
   )
   const reicept = await tx.wait();
