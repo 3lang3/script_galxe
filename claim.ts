@@ -18,20 +18,26 @@ function encryptPassportData(data: any, password: string) {
 export const claimPassport = async (wallet: ethers.Wallet, password: string) => {
   const account = new Galex({ privateKey: wallet.privateKey })
 
-  const { addressInfo } = await account.basicUserInfo();
+  let { addressInfo } = await account.basicUserInfo();
 
   if (addressInfo.passport.status === 'ISSUED_NOT_MINTED' && !addressInfo.passport.id) {
     console.log(`[${wallet.address}] ${addressInfo.passport.status} 无法Mint Passport`)
     return
   }
 
-  if (addressInfo.passport.status === 'PENDING_PREPARE') {
+  if (addressInfo.passport.status === 'PENDING_PREPARE' || addressInfo.passport.status === 'PENDING_SAVE') {
     let signature = await wallet.signMessage(`prepare_address_passport:${wallet.address.toLocaleLowerCase()}`);
     const { preparePassport } = await account.preparePassport({ signature });
-
     signature = await wallet.signMessage(`save_address_passport:${wallet.address.toLocaleLowerCase()}`);
     const cipher = encryptPassportData(preparePassport.data, password)
     await account.savePassport({ cipher, signature });
+  }
+
+  ;({ addressInfo } = await account.basicUserInfo());
+
+  if (!addressInfo.passport.id) {
+    console.log(`[${wallet.address}] kyc认证未通过, 无法Mint Passport`)
+    return
   }
 
   // 获取mint信息
@@ -45,7 +51,7 @@ export const claimPassport = async (wallet: ethers.Wallet, password: string) => 
   const { mintFuncInfo, allow, signature } = prepareParticipate;
 
   if (!mintFuncInfo || !allow) {
-    return console.log(`[${wallet.address}] 领取NFT/获取签名信息失败`)
+    return console.log(`[${wallet.address}] 领取NFT/获取签名信息失败, ${prepareParticipate.disallowReason}}`)
   }
 
   const abi = ['function claim(uint256, address, uint256, uint256, bytes) payable']
@@ -55,7 +61,7 @@ export const claimPassport = async (wallet: ethers.Wallet, password: string) => 
   const balance = await bscProvider.getBalance(wallet.address);
   const value = ethers.utils.parseEther('0.025');
   if (balance.lt(value)) {
-    return console.log(`[${wallet.address}] 余额不足`)
+    return console.log(`[${wallet.address}] Mint NFT失败: 余额不足`)
   }
   console.log(`[${wallet.address}] 开始领取NFT...`)
   const tx = await contract.claim(
