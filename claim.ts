@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { ethers } from 'ethers';
 import { Galex } from './module';
+import { appendFileSync } from 'fs';
 const createKeccakHash = require('keccak');
 
 const bscProvider = new ethers.providers.JsonRpcProvider('https://rpc.ankr.com/bsc/a9603e82251e01bf7e40029505b09457e83ed9ceaa56043dbb9657f2b676ef05');
@@ -37,6 +38,8 @@ export const claimPassport = async (wallet: ethers.Wallet, password: string) => 
 
   if (!addressInfo.passport.id) {
     console.log(`[${wallet.address}] kyc认证未通过, 无法Mint Passport`)
+    // 将未过kyc的私钥追加到文件中，方便重新生成认证链接
+    appendFileSync('./unverify_keys.txt', `${wallet.privateKey}\n`)
     return
   }
 
