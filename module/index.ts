@@ -113,7 +113,6 @@ export class Galex {
     return res.data.data
   }
   async campaignInfo(p: { id: string }) {
-    const address = this.wallet.address;
     const res = await this.req.post('/query', campaignInfo({ ...p }))
     return res.data.data
   }

@@ -14,23 +14,19 @@ import { claimPassport } from './claim';
 
 // 领取任务积分
 const claim = async (wallet: ethers.Wallet) => {
-  await loop(async () => {
-    const account = new Galex({ privateKey: wallet.privateKey });
-    let r = await account.campaignInfo({
-      id: cfg.campaignId,
-    });
-    r = await account.getPrepareParticipate({
-      campaignID: cfg.campaignId,
-      chain: r.campaign.chain,
-    });
-    if (r.prepareParticipate?.disallowReason) {
-      console.log(`[Claim失败]${wallet.address}: ${r.prepareParticipate?.disallowReason}`);
-      return;
-    }
-    if (r.prepareParticipate?.loyaltyPointsTxResp?.TotalClaimedPoints) {
-      console.log(`[Claim成功]${wallet.address}`);
-    }
-  })
+
+  const account = new Galex({ privateKey: wallet.privateKey });
+  let r = await account.campaignInfo({
+    id: cfg.campaignId,
+  });
+  r = await account.getPrepareParticipate({
+    campaignID: cfg.campaignId,
+    chain: r.campaign.chain,
+  });
+  if (r.prepareParticipate?.disallowReason) {
+    throw Error(`[Claim失败]${wallet.address}: ${r.prepareParticipate?.disallowReason}`);
+  }
+  console.log(`[Claim成功]${wallet.address}`);
 };
 
 // 获取widget containerId
