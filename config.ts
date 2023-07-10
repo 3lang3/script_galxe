@@ -6,5 +6,5 @@ export default {
   campaignId: '',
   // 银河护照设置密码, 非领取任务可不填
   // 必须混合使用字母、数字和符号。支持符号：~！@#$%^&*.= 最少8位
-  passportPwd: 'z2316180100~'
+  passportPwd: '',
 }

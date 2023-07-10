@@ -64,7 +64,7 @@ export const claimPassport = async (wallet: ethers.Wallet, password: string) => 
   const balance = await bscProvider.getBalance(wallet.address);
   const value = ethers.utils.parseEther('0.025');
   if (balance.lt(value)) {
-    return console.log(`[${wallet.address}] Mint NFT失败: 余额不足`)
+    return console.log(`[余额不足][${wallet.address}] Mint NFT失败`)
   }
   console.log(`[${wallet.address}] 开始领取NFT...`)
   const tx = await contract.claim(
